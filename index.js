@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const serverless = require('serverless-http');
 const database = require('./Database/config');
 const router = require('./Routers/routers')
 const fileRouter = require('./Routers/fileupload')
@@ -16,6 +17,15 @@ database.initialize(error => {
 app.use(express.json())
 app.use('/', router)
 app.use('/file', fileRouter)
-app.listen(port, () =>
-    console.log(`listening on port. ${port}`)
-);
+const environment = process.env.ENVIRONMENT || "STAGING"
+
+if (environment === "STAGING") {
+    exports.handler = serverless(app);
+} else {
+    app.listen(port, () =>
+        console.log(`listening on port. ${port}`)
+    );
+}
+
+
+
